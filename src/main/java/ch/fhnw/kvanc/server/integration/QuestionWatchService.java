@@ -1,4 +1,4 @@
-package ch.fhnw.kvanc.server.web;
+package ch.fhnw.kvanc.server.integration;
 
 import java.io.File;
 import java.io.IOException;
