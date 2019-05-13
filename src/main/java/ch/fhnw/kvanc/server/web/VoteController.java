@@ -1,32 +1,32 @@
 package ch.fhnw.kvanc.server.web;
 
-import ch.fhnw.kvanc.server.domain.Vote;
-import ch.fhnw.kvanc.server.integration.QuestionWatchService;
-import ch.fhnw.kvanc.server.repository.VoteRepository;
-import ch.fhnw.kvanc.server.service.AuthorizationService;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import ch.fhnw.kvanc.server.domain.Vote;
+import ch.fhnw.kvanc.server.integration.QuestionWatchService;
+import ch.fhnw.kvanc.server.repository.VoteRepository;
+import ch.fhnw.kvanc.server.service.AuthorizationService;
 
 @RestController
 @RequestMapping("/votes")
 public class VoteController {
     private Logger logger = LoggerFactory.getLogger(VoteController.class);
-
-    @GetMapping
-    public ResponseEntity<String> sayHello() {
-        logger.debug("Server called successfully");
-        return new ResponseEntity<String>("Hello from Spring Boot server", HttpStatus.OK);
-    }
 
     @Autowired
     private QuestionWatchService watchService;
@@ -37,52 +37,61 @@ public class VoteController {
     @Autowired
     private VoteRepository voteRepository;
 
-    @CrossOrigin
-    @GetMapping("/question")
-    public ResponseEntity<QuestionDTO> getQuestion(){
-        String content = watchService.getQuestionContent();
-        QuestionDTO dto = new QuestionDTO(content);
-        if(content == null || content.isEmpty()){
-            logger.debug("No questions found");
-            return new ResponseEntity<>(dto, HttpStatus.NO_CONTENT);
-        }else {
-            logger.debug("Found question");
-            return new ResponseEntity<>(dto, HttpStatus.OK);
-        }
+    @GetMapping
+    public ResponseEntity<String> sayHello() {
+        logger.debug("Server called successfully!!");
+        return new ResponseEntity<String>("Hello from server", HttpStatus.OK);
     }
 
     @CrossOrigin
-    @PostMapping("/votes")
-    public ResponseEntity<TokenDTO> createVoteForUser(@RequestBody TokenDTO token, HttpServletRequest request){
-        String ipAdress = request.getRemoteAddr();
-        if(!authorizationService.checkAndAddAddress(ipAdress)){
-            logger.info("Vote already created from host '{}'", ipAdress);
+    @GetMapping("/question")
+    ResponseEntity<QuestionDTO> getQuestion() {
+        String content = watchService.getQuestionContent();
+        if (content == null) {
+            return new ResponseEntity<QuestionDTO>(HttpStatus.NO_CONTENT);
+        }
+        QuestionDTO dto = new QuestionDTO(content);
+        return new ResponseEntity<QuestionDTO>(dto, HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping
+    public ResponseEntity<TokenDTO> createVoteForUser(@RequestBody TokenDTO token, HttpServletRequest request) {
+        String ipAddress = request.getRemoteAddr();
+        if (!authorizationService.checkAndAddAddress(ipAddress)) {
+            logger.info("Vote already created from host '{}'", ipAddress);
             return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         }
         Vote vote = voteRepository.createVote(token.getEmail());
-        if(vote == null){
-            logger.info("Vote already created for '{}",token.getEmail());
-        return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+        if (vote == null) {
+            logger.info("Vote already created for '{}'", token.getEmail());
+            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         }
-
-        TokenDTO tokenDto = new TokenDTO(vote.getId(), token.getEmail());
-        logger.debug("Vote created for '"+vote.getEmail()+"'");
-        return new ResponseEntity<>(tokenDto, HttpStatus.CREATED);
+        TokenDTO tokenDTO = new TokenDTO(vote.getId(), token.getEmail());
+        logger.debug("Vote created for '" + vote.getEmail() + "'");
+        return new ResponseEntity<TokenDTO>(tokenDTO, HttpStatus.CREATED);
     }
 
     @CrossOrigin
-    @PutMapping("/votes/{token}")
-    public ResponseEntity<VoteDTO> vote(@Valid VoteDTO voteDTO, BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> vote(@PathVariable String id, @RequestBody @Valid VoteDTO dto, BindingResult result) {
+        if (result.hasErrors()) {
+            logger.error("Validation failed!");
+            return new ResponseEntity<Void>(HttpStatus.PRECONDITION_FAILED);
         }
-        if(voteDTO.getVote() == null){
-            return new ResponseEntity<>((HttpStatus.NOT_FOUND));
+        Vote vote = voteRepository.findVote(id);
+        if (vote == null) {
+            logger.error("No vote found for '{}'", id);
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
-        if (voteDTO.getVote()){
-         return new ResponseEntity<>((HttpStatus.TOO_MANY_REQUESTS));
-        }else {
-            return new ResponseEntity<>(HttpStatus.OK);
+        if (vote.isClosed()) {
+            logger.info("Already voted: '" + vote.getEmail() + "'");
+            return new ResponseEntity<Void>(HttpStatus.TOO_MANY_REQUESTS);
         }
+        vote.setTrue(dto.getVote());
+        voteRepository.updateVote(vote);
+        logger.debug("Vote updated for '" + vote.getEmail() + "'");
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
+
 }
