@@ -13,6 +13,8 @@ import java.nio.file.WatchService;
 
 import javax.annotation.PostConstruct;
 
+import ch.fhnw.kvanc.server.service.AuthorizationService;
+import ch.fhnw.kvanc.server.web.WebSocketEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,13 @@ public class QuestionWatchService {
     @Autowired
     private VoteRepository voteRepository;
 
-    private WatchService watchService;
+    @Autowired
+    private AuthorizationService authorizationService;
+
+    @Autowired
+    private WebSocketEndpoint websocket;
+
+   private WatchService watchService;
 
     private Path path;
 
@@ -78,9 +86,14 @@ public class QuestionWatchService {
         if (questionContent.length() == 0) {
             // reset everything
             voteRepository.reset();
+            voteRepository.reset();
+            authorizationService.reset();
+            websocket.reset();
             logger.info("Reset all services");
         } else {
+            authorizationService.reset();
             voteRepository.reOpenAll();
+            websocket.pushMessage(questionContent);
             logger.info("New Question has arrived: '{}'", questionContent);
         }
     }
