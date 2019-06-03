@@ -77,7 +77,7 @@ public class VoteController {
     public ResponseEntity<Void> vote(@PathVariable String id, @RequestBody @Valid VoteDTO dto, BindingResult result) {
         if (result.hasErrors()) {
             logger.error("Validation failed!");
-            return new ResponseEntity<Void>(HttpStatus.PRECONDITION_FAILED);
+            return new ResponseEntity<Void>(HttpStatus.PRECONDITION_FAILED); 
         }
         Vote vote = voteRepository.findVote(id);
         if (vote == null) {

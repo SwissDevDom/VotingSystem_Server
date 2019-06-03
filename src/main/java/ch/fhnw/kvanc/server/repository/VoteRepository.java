@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.fhnw.kvanc.server.domain.Vote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import ch.fhnw.kvanc.server.domain.Vote;
 
 /**
  * VoteRepository

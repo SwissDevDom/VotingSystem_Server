@@ -13,8 +13,6 @@ import java.nio.file.WatchService;
 
 import javax.annotation.PostConstruct;
 
-import ch.fhnw.kvanc.server.service.AuthorizationService;
-import ch.fhnw.kvanc.server.web.WebSocketEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +22,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import ch.fhnw.kvanc.server.repository.VoteRepository;
+import ch.fhnw.kvanc.server.service.AuthorizationService;
+import ch.fhnw.kvanc.server.web.WebSocketEndpoint;
 
 /**
  * WatchService
@@ -47,7 +47,7 @@ public class QuestionWatchService {
     @Autowired
     private WebSocketEndpoint websocket;
 
-   private WatchService watchService;
+    private WatchService watchService;
 
     private Path path;
 
@@ -69,7 +69,7 @@ public class QuestionWatchService {
                 final Path changed = (Path) event.context();
                 if (changed.endsWith(filename)) {
                     logger.info("File '{}' has changed", filename);
-                    readFile();
+                    readFile(pathname + "/" + filename);
                     if (questionContent.length() > 0) {
                         logger.info("File content is '{}'", questionContent);
                     }
@@ -79,13 +79,11 @@ public class QuestionWatchService {
         }
     }
 
-    private void readFile() throws IOException {
-        String path = pathname + "/" + filename;
-        File file = new FileSystemResource(path).getFile();
+    private void readFile(String filepath) throws IOException {
+        File file = new FileSystemResource(filepath).getFile();
         questionContent = new String(Files.readAllBytes(file.toPath())).trim();
         if (questionContent.length() == 0) {
             // reset everything
-            voteRepository.reset();
             voteRepository.reset();
             authorizationService.reset();
             websocket.reset();

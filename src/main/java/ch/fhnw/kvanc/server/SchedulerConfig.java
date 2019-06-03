@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 
 @Configuration
-//@EnableScheduling
+@EnableScheduling
 public class SchedulerConfig {
     @Bean
     public TaskScheduler taskScheduler() {
