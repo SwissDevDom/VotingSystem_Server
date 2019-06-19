@@ -12,6 +12,10 @@ import org.springframework.stereotype.Component;
 
 /**
  * AutorizationService
+ *
+ * Dieser Service stellt sicher, dass sich ein Benutzer vom gleichen
+ * Host nur einmal während einer Frage/Antwort Session registrieren kann. Die Kontrolle basiert
+ * auf der IP-Adresse, die aus dem HTTP-Header herausgelesen werden kann.
  */
 @Component
 public class AuthorizationService {

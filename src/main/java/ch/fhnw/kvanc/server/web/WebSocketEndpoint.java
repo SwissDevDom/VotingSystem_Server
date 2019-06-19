@@ -11,7 +11,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.PingMessage;
 import org.springframework.web.socket.PongMessage;
 import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.WebSocketSession; /*Allows sending messages over a WebSocket
+                                                          connection and closing it.*/
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 public class WebSocketEndpoint extends TextWebSocketHandler {

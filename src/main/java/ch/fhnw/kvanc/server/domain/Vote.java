@@ -4,6 +4,9 @@ import java.util.UUID;
 
 /**
  * Vote
+ *
+ * Diese Klasse beschreibt das Domain Objekt "Vote" mit den entsprechenden
+ * Properties. Es ist eine einfache Java Klasse, ein sogenanntes POJO (Plain Old Java Object)
  */
 public class Vote {
     private String id;

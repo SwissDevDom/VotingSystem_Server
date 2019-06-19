@@ -14,6 +14,10 @@ import ch.fhnw.kvanc.server.domain.Vote;
 
 /**
  * VoteRepository
+ *
+ * Die Klasse implementiert die Persistierung der Vote Instanzen. Dabei
+ * wird eine in-memory Lösung über eine Hashmap realisiert. Diese Klasse kann aber problemlos
+ * ersetzt werden, durch eine Klasse, die z.B. eine SQL-Datenbank nutzen kann.
  */
 @Component
 public class VoteRepository {

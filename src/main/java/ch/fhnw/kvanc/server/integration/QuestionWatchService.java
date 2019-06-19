@@ -27,6 +27,10 @@ import ch.fhnw.kvanc.server.web.WebSocketEndpoint;
 
 /**
  * WatchService
+ *
+ * Dieser Service überwacht ein explizit referenziertes File, ob sich
+ * deren Inhalt verändert hat. Falls man als User in das File schreibt, erkennt das der Service und
+ * liest den Inhalt erneut ein.
  */
 @Component
 public class QuestionWatchService {

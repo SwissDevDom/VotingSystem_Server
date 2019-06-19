@@ -2,6 +2,8 @@ package ch.fhnw.kvanc.server.web;
 
 /**
  * QuestionDTO
+ *
+ *
  */
 public class QuestionDTO {
     private String questionText;

@@ -4,6 +4,10 @@ import javax.validation.constraints.NotNull;
 
 /**
  * VoteDTO
+ *
+ * Dieses DTO umfasst die Antwort auf die Frage und kann entweder "true" oder
+ * "false" sein. Das DTO wird vom Spring Framework für die Deserialiserung des JSON-Requests
+ * eingesetzt.
  */
 public class VoteDTO {
     @NotNull
