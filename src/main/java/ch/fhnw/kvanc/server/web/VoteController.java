@@ -3,6 +3,7 @@ package ch.fhnw.kvanc.server.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import ch.fhnw.kvanc.server.integration.MQTTClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class VoteController {
 
     @Autowired
     private VoteRepository voteRepository;
+
+    @Autowired
+    private MQTTClient mqttClient;
 
     @GetMapping
     public ResponseEntity<String> sayHello() {
@@ -90,6 +94,7 @@ public class VoteController {
         }
         vote.setTrue(dto.getVote());
         voteRepository.updateVote(vote);
+        mqttClient.publish(voteRepository.findAll());
         logger.debug("Vote updated for '" + vote.getEmail() + "'");
         return new ResponseEntity<Void>(HttpStatus.OK);
     }

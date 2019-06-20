@@ -51,6 +51,9 @@ public class QuestionWatchService {
     @Autowired
     private WebSocketEndpoint websocket;
 
+    @Autowired
+    private MQTTClient mqttClient;
+
     private WatchService watchService;
 
     private Path path;
@@ -91,11 +94,13 @@ public class QuestionWatchService {
             voteRepository.reset();
             authorizationService.reset();
             websocket.reset();
+            mqttClient.reset();
             logger.info("Reset all services");
         } else {
             authorizationService.reset();
             voteRepository.reOpenAll();
             websocket.pushMessage(questionContent);
+            mqttClient.reset();
             logger.info("New Question has arrived: '{}'", questionContent);
         }
     }
